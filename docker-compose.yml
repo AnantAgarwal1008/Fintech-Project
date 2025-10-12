@@ -12,7 +12,9 @@ services:
     ports: ["6379:6379"]
 
   api_go:
-    build: ./infra/docker/api_go
+    build:
+      context: .                          # <<< repo root
+      dockerfile: infra/docker/api_go/Dockerfile
     env_file: .env
     depends_on: [postgres]
     ports: ["8080:8080"]
@@ -20,7 +22,9 @@ services:
       - ./services/api_go:/app
 
   ml_service_py:
-    build: ./infra/docker/ml_service_py
+    build:
+      context: .                          # <<< repo root
+      dockerfile: infra/docker/ml_service_py/Dockerfile
     env_file: .env
     depends_on: [postgres, redis]
     ports: ["8000:8000"]
@@ -29,7 +33,9 @@ services:
       - ./services/batch_jobs_py:/batch
 
   frontend:
-    build: ./infra/docker/frontend
+    build:
+      context: .                          # <<< repo root
+      dockerfile: infra/docker/frontend/Dockerfile
     env_file: .env
     depends_on: [api_go]
     ports: ["5173:5173"]
