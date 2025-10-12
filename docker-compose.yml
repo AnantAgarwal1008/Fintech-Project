@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    env_file: .env
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+
+  api_go:
+    build: ./infra/docker/api_go
+    env_file: .env
+    depends_on: [postgres]
+    ports: ["8080:8080"]
+    volumes:
+      - ./services/api_go:/app
+
+  ml_service_py:
+    build: ./infra/docker/ml_service_py
+    env_file: .env
+    depends_on: [postgres, redis]
+    ports: ["8000:8000"]
+    volumes:
+      - ./services/ml_service_py:/app
+      - ./services/batch_jobs_py:/batch
+
+  frontend:
+    build: ./infra/docker/frontend
+    env_file: .env
+    depends_on: [api_go]
+    ports: ["5173:5173"]
+    volumes:
+      - ./frontend:/app
+
+volumes:
+  pgdata:
